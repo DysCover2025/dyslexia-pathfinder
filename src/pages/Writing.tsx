@@ -7,7 +7,7 @@ const Writing = () => {
   return (
     <Layout activeTab="writing">
       <div className="section-content">
-        <h1 className="text-3xl font-heading font-bold mb-6">Writing Assistant</h1>
+        <h1 className="text-3xl font-heading font-bold mb-6">DysCover Writing</h1>
         <p className="text-xl mb-8">
           Get professional writing feedback and grammar assistance tailored for dyslexia.
         </p>

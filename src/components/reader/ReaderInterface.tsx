@@ -38,6 +38,7 @@ const ReaderInterface = () => {
     letterSpacing: 'wide',
     colorTheme: 'cream'
   });
+  const [currentDocumentContext, setCurrentDocumentContext] = useState<string>('');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -53,17 +54,35 @@ const ReaderInterface = () => {
     setMessages((prev) => [...prev, newMessage]);
     setIsProcessing(true);
     
-    // Generate a meaningful response based on user input
+    // Determine if this is a follow-up question
+    const isFollowUp = messages.length > 1;
+    
     setTimeout(() => {
       let responseContent = '';
       
-      // Simple keyword-based response logic
-      if (content.toLowerCase().includes('summarize')) {
-        responseContent = 'Here is a simplified summary of the text:\n\n• The main point is about improving reading accessibility for people with dyslexia\n• Key features include customizable fonts, color themes, and line spacing\n• Research shows that these adaptations can improve reading speed by up to 30%\n\nWould you like me to elaborate on any specific part?';
-      } else if (content.toLowerCase().includes('explain') || content.toLowerCase().includes('elaborate')) {
-        responseContent = 'Let me elaborate on that topic:\n\n1. Dyslexia affects approximately 15-20% of the population\n2. Common challenges include difficulty with word recognition, spelling, and decoding\n3. Visual adaptations like using OpenDyslexic font and cream backgrounds can significantly reduce reading strain\n\nDoes this help with your question?';
+      // If we have a document context, make the response more specific to it
+      if (currentDocumentContext) {
+        if (content.toLowerCase().includes('summarize')) {
+          responseContent = `Based on the document you uploaded, here's a simplified summary:\n\n• The document discusses ${currentDocumentContext}\n• Key points include customizable reading interfaces and accessibility features\n• Research shows these adaptations can significantly improve reading comprehension\n\nWould you like me to elaborate on any specific section?`;
+        } else if (content.toLowerCase().includes('explain') || content.toLowerCase().includes('elaborate')) {
+          responseContent = `Let me explain more about that topic from your document:\n\n1. The section you're asking about covers important accessibility features\n2. It mentions how customizable interfaces benefit users with different reading needs\n3. It provides data showing 30-40% improvements in reading comprehension with proper adaptations\n\nIs there something more specific you'd like to know about this section?`;
+        } else {
+          responseContent = `Regarding your question about "${content}", here's what I found in your document:\n\n• This relates to the section on page 2 about reading assistance technologies\n• The document highlights how personalized settings improve reading outcomes\n• It suggests that combining visual and audio features creates the best experience\n\nCan I help clarify anything else about this topic?`;
+        }
       } else {
-        responseContent = 'I understand you\'re asking about "' + content + '". Here\'s what I can tell you:\n\n• This topic relates to reading comprehension and accessibility\n• The key concepts are simplified into short, clear bullet points\n• Information is presented with adequate spacing between lines for easier tracking\n\nCan I help with anything specific about this topic?';
+        // General response without document context
+        if (content.toLowerCase().includes('summarize')) {
+          responseContent = 'Here is a simplified summary of the text:\n\n• The main point is about improving reading accessibility for people with dyslexia\n• Key features include customizable fonts, color themes, and line spacing\n• Research shows that these adaptations can improve reading speed by up to 30%\n\nWould you like me to elaborate on any specific part?';
+        } else if (content.toLowerCase().includes('explain') || content.toLowerCase().includes('elaborate')) {
+          responseContent = 'Let me elaborate on that topic:\n\n1. Dyslexia affects approximately 15-20% of the population\n2. Common challenges include difficulty with word recognition, spelling, and decoding\n3. Visual adaptations like using OpenDyslexic font and cream backgrounds can significantly reduce reading strain\n\nDoes this help with your question?';
+        } else {
+          responseContent = `I understand you're asking about "${content}". Here's what I can tell you:\n\n• This topic relates to reading comprehension and accessibility\n• The key concepts are simplified into short, clear bullet points\n• Information is presented with adequate spacing between lines for easier tracking\n\nCan I help with anything specific about this topic?`;
+        }
+      }
+      
+      // For follow-up questions, make the response acknowledge the conversation context
+      if (isFollowUp) {
+        responseContent = `To follow up on your previous question, ${responseContent.toLowerCase()}`;
       }
       
       const response: Message = {
@@ -86,6 +105,9 @@ const ReaderInterface = () => {
     
     setMessages((prev) => [...prev, fileMessage]);
     setIsProcessing(true);
+    
+    // Set document context based on file name to simulate actual document analysis
+    setCurrentDocumentContext(`"${file.name}" which appears to be about dyslexia-friendly reading technologies`);
     
     // Generate a detailed document analysis based on file type
     setTimeout(() => {
@@ -118,7 +140,7 @@ const ReaderInterface = () => {
   return (
     <div className={`h-[80vh] flex flex-col glass-panel rounded-2xl p-6 ${getColorClass(fontPreferences.colorTheme)}`}>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-heading font-semibold">Reading Assistant</h2>
+        <h2 className="text-2xl font-heading font-semibold">DysCover Reading</h2>
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" className="flex gap-2">

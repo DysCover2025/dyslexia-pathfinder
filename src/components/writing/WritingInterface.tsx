@@ -31,6 +31,7 @@ const WritingInterface = () => {
     letterSpacing: 'wide',
     colorTheme: 'cream'
   });
+  const [currentWritingContext, setCurrentWritingContext] = useState<string>('');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -46,6 +47,9 @@ const WritingInterface = () => {
     setMessages((prev) => [...prev, newMessage]);
     setIsProcessing(true);
     
+    // Determine if this is a follow-up question
+    const isFollowUp = messages.length > 1;
+    
     // Generate detailed writing feedback based on content
     setTimeout(() => {
       // Find common writing issues to provide feedback on
@@ -54,26 +58,51 @@ const WritingInterface = () => {
       const hasFiller = /\b(um|uh|er|you know|actually|literally|basically|just)\b/i.test(content);
       const hasLongSentences = content.split(/[.!?]/).some(sentence => sentence.split(' ').length > 20);
       
-      let feedback = 'Here is professional feedback on your writing:\n\n';
+      let feedback = '';
       
-      if (hasPassiveVoice) {
-        feedback += '• I noticed some passive voice constructions that could be made more direct and engaging. For example:\n  - "The report was completed by the team" → "The team completed the report"\n\n';
+      // If this is a follow-up request about writing advice
+      if (isFollowUp && content.toLowerCase().includes('explain') || content.toLowerCase().includes('how')) {
+        feedback = `Let me address your follow-up question about writing style:\n\n`;
+        
+        if (hasPassiveVoice) {
+          feedback += `• About passive voice: Passive voice happens when the subject of your sentence receives an action rather than performs it. For example:\n  - Passive: "The email was sent by me."\n  - Active: "I sent the email."\n\nActive voice is generally more direct and engaging for readers.\n\n`;
+        }
+        
+        if (hasInformalLanguage || hasFiller) {
+          feedback += `• Regarding informal language: In professional writing, precision matters. Instead of vague terms like "things" or "a lot," try more specific alternatives like "factors," "elements," or "a significant number."\n\nFiller words like "basically" or "actually" can usually be removed without changing your meaning.\n\n`;
+        }
+        
+        if (hasLongSentences) {
+          feedback += `• On sentence length: Long sentences (over 20 words) can be difficult to follow, especially for readers with dyslexia. Try breaking them into smaller units with one main idea per sentence.\n\n`;
+        }
+        
+        feedback += `Would you like me to suggest specific edits to a particular section of your writing?`;
+      } 
+      // For initial text analysis or other follow-ups
+      else {
+        feedback = isFollowUp 
+          ? 'Based on your follow-up, here are additional suggestions for your writing:\n\n' 
+          : 'Here is professional feedback on your writing:\n\n';
+        
+        if (hasPassiveVoice) {
+          feedback += '• I noticed some passive voice constructions that could be made more direct and engaging. For example:\n  - "The report was completed by the team" → "The team completed the report"\n\n';
+        }
+        
+        if (hasInformalLanguage) {
+          feedback += '• Some informal language could be replaced with more professional alternatives:\n  - "a lot of" → "numerous" or "significant"\n  - "stuff" → "materials" or "resources"\n\n';
+        }
+        
+        if (hasFiller) {
+          feedback += '• Consider removing filler words that don\'t add meaning to your writing:\n  - Words like "just," "actually," and "basically" can often be removed entirely\n\n';
+        }
+        
+        if (hasLongSentences) {
+          feedback += '• I found some sentences that are quite long. Breaking them into shorter sentences can improve readability, especially for readers with dyslexia.\n\n';
+        }
+        
+        // Add general improvement suggestions
+        feedback += '• Structure suggestion: Your text would benefit from clearer paragraph breaks around main ideas\n\n• Word choice: Consider using more precise terms in the third paragraph\n\n• Strengths: Your introduction is clear and establishes your main point effectively';
       }
-      
-      if (hasInformalLanguage) {
-        feedback += '• Some informal language could be replaced with more professional alternatives:\n  - "a lot of" → "numerous" or "significant"\n  - "stuff" → "materials" or "resources"\n\n';
-      }
-      
-      if (hasFiller) {
-        feedback += '• Consider removing filler words that don\'t add meaning to your writing:\n  - Words like "just," "actually," and "basically" can often be removed entirely\n\n';
-      }
-      
-      if (hasLongSentences) {
-        feedback += '• I found some sentences that are quite long. Breaking them into shorter sentences can improve readability, especially for readers with dyslexia.\n\n';
-      }
-      
-      // Add general improvement suggestions
-      feedback += '• Structure suggestion: Your text would benefit from clearer paragraph breaks around main ideas\n\n• Word choice: Consider using more precise terms in the third paragraph\n\n• Strengths: Your introduction is clear and establishes your main point effectively';
       
       const response: Message = {
         id: (Date.now() + 1).toString(),
@@ -96,6 +125,9 @@ const WritingInterface = () => {
     setMessages((prev) => [...prev, fileMessage]);
     setIsProcessing(true);
     
+    // Set writing context based on file name to simulate actual document analysis
+    setCurrentWritingContext(`"${file.name}" which appears to be a professional document requiring editing`);
+    
     // Generate detailed document analysis for writing improvement
     setTimeout(() => {
       const extension = file.name.split('.').pop()?.toLowerCase();
@@ -114,6 +146,8 @@ const WritingInterface = () => {
         analysisContent += '• Suggestions for revision:\n  - Strengthen your conclusion with a clear call to action\n  - Consider adding bullet points for the list of recommendations\n  - Review for opportunities to use more precise vocabulary';
       }
       
+      analysisContent += '\n\nWould you like me to suggest specific rewrites for any sections?';
+      
       const response: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -128,7 +162,7 @@ const WritingInterface = () => {
   return (
     <div className={`h-[80vh] flex flex-col glass-panel rounded-2xl p-6 ${getColorClass(fontPreferences.colorTheme)}`}>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-heading font-semibold">Writing Assistant</h2>
+        <h2 className="text-2xl font-heading font-semibold">DysCover Writing</h2>
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" className="flex gap-2">
