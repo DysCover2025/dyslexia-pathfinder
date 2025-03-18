@@ -46,13 +46,41 @@ const WritingInterface = () => {
     setMessages((prev) => [...prev, newMessage]);
     setIsProcessing(true);
     
-    // Simulate response for demonstration
+    // Generate detailed writing feedback based on content
     setTimeout(() => {
+      // Find common writing issues to provide feedback on
+      const hasPassiveVoice = /\b(is|are|was|were|be|been|being)\s+\w+ed\b/i.test(content);
+      const hasInformalLanguage = /\b(stuff|things|a lot|kind of|sort of|like|basically)\b/i.test(content);
+      const hasFiller = /\b(um|uh|er|you know|actually|literally|basically|just)\b/i.test(content);
+      const hasLongSentences = content.split(/[.!?]/).some(sentence => sentence.split(' ').length > 20);
+      
+      let feedback = 'Here is professional feedback on your writing:\n\n';
+      
+      if (hasPassiveVoice) {
+        feedback += '• I noticed some passive voice constructions that could be made more direct and engaging. For example:\n  - "The report was completed by the team" → "The team completed the report"\n\n';
+      }
+      
+      if (hasInformalLanguage) {
+        feedback += '• Some informal language could be replaced with more professional alternatives:\n  - "a lot of" → "numerous" or "significant"\n  - "stuff" → "materials" or "resources"\n\n';
+      }
+      
+      if (hasFiller) {
+        feedback += '• Consider removing filler words that don\'t add meaning to your writing:\n  - Words like "just," "actually," and "basically" can often be removed entirely\n\n';
+      }
+      
+      if (hasLongSentences) {
+        feedback += '• I found some sentences that are quite long. Breaking them into shorter sentences can improve readability, especially for readers with dyslexia.\n\n';
+      }
+      
+      // Add general improvement suggestions
+      feedback += '• Structure suggestion: Your text would benefit from clearer paragraph breaks around main ideas\n\n• Word choice: Consider using more precise terms in the third paragraph\n\n• Strengths: Your introduction is clear and establishes your main point effectively';
+      
       const response: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Here is professional feedback on your writing:\n\n• Your text would sound more professional by using more formal language.\n• Consider revising this sentence: "I think that maybe we could possibly do this."\n• Grammar issue: There\'s a subject-verb agreement error in paragraph 2.\n• Suggested alternative: "This approach would be more effective for achieving our goals."'
+        content: feedback
       };
+      
       setMessages((prev) => [...prev, response]);
       setIsProcessing(false);
     }, 1500);
@@ -68,13 +96,30 @@ const WritingInterface = () => {
     setMessages((prev) => [...prev, fileMessage]);
     setIsProcessing(true);
     
-    // Simulate processing for demonstration
+    // Generate detailed document analysis for writing improvement
     setTimeout(() => {
+      const extension = file.name.split('.').pop()?.toLowerCase();
+      let analysisContent = `I've analyzed ${file.name} and found several opportunities to improve the writing:\n\n`;
+      
+      // Generate different feedback based on file type
+      if (extension === 'pdf' || extension === 'docx' || extension === 'doc') {
+        analysisContent += '• Document structure:\n  - The executive summary could be more concise (currently 500 words)\n  - Consider adding subheadings to break up the 3rd section\n  - The conclusion effectively summarizes key points\n\n';
+        analysisContent += '• Language usage:\n  - 8 instances of passive voice that could be rewritten for clarity\n  - Several technical terms used without explanation (consider adding a glossary)\n  - Inconsistent formatting of numerical data\n\n';
+        analysisContent += '• Grammar and mechanics:\n  - 5 subject-verb agreement errors identified\n  - Inconsistent use of serial commas\n  - Acronyms should be defined at first use\n\n';
+        analysisContent += '• Professional tone:\n  - Some sections use overly casual language that could be revised\n  - The introduction would benefit from a stronger thesis statement\n  - Consider removing subjective qualifiers like "very" and "extremely"';
+      } else {
+        analysisContent += '• Content assessment:\n  - Your main argument is clear but supporting evidence could be stronger\n  - The introduction effectively engages the reader\n  - Consider adding specific examples in paragraphs 2 and 4\n\n';
+        analysisContent += '• Style improvements:\n  - Sentences average 25 words (consider aiming for 15-20 for readability)\n  - Several paragraphs exceed 7 sentences (breaking them up would improve accessibility)\n  - Transitions between ideas could be strengthened\n\n';
+        analysisContent += '• Grammar highlights:\n  - Consistent tense usage throughout (well done!)\n  - 3 instances of comma splices that should be corrected\n  - Subject-verb agreement error in the final paragraph\n\n';
+        analysisContent += '• Suggestions for revision:\n  - Strengthen your conclusion with a clear call to action\n  - Consider adding bullet points for the list of recommendations\n  - Review for opportunities to use more precise vocabulary';
+      }
+      
       const response: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `I've analyzed ${file.name} and found ways to improve the writing:\n\n• The document has 3 grammar issues that need attention.\n• The introduction would be stronger with a clearer thesis statement.\n• Consider replacing casual phrases like "a lot" with specific quantities.\n• Highlighted sections with passive voice could be rewritten in active voice for more impact.`
+        content: analysisContent
       };
+      
       setMessages((prev) => [...prev, response]);
       setIsProcessing(false);
     }, 2000);

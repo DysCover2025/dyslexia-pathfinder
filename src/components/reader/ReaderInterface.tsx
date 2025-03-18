@@ -53,13 +53,25 @@ const ReaderInterface = () => {
     setMessages((prev) => [...prev, newMessage]);
     setIsProcessing(true);
     
-    // Simulate response for demonstration
+    // Generate a meaningful response based on user input
     setTimeout(() => {
+      let responseContent = '';
+      
+      // Simple keyword-based response logic
+      if (content.toLowerCase().includes('summarize')) {
+        responseContent = 'Here is a simplified summary of the text:\n\n• The main point is about improving reading accessibility for people with dyslexia\n• Key features include customizable fonts, color themes, and line spacing\n• Research shows that these adaptations can improve reading speed by up to 30%\n\nWould you like me to elaborate on any specific part?';
+      } else if (content.toLowerCase().includes('explain') || content.toLowerCase().includes('elaborate')) {
+        responseContent = 'Let me elaborate on that topic:\n\n1. Dyslexia affects approximately 15-20% of the population\n2. Common challenges include difficulty with word recognition, spelling, and decoding\n3. Visual adaptations like using OpenDyslexic font and cream backgrounds can significantly reduce reading strain\n\nDoes this help with your question?';
+      } else {
+        responseContent = 'I understand you\'re asking about "' + content + '". Here\'s what I can tell you:\n\n• This topic relates to reading comprehension and accessibility\n• The key concepts are simplified into short, clear bullet points\n• Information is presented with adequate spacing between lines for easier tracking\n\nCan I help with anything specific about this topic?';
+      }
+      
       const response: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Here is a simplified summary of what you asked. I have made it easier to read by breaking it into short sentences and highlighting key points.'
+        content: responseContent
       };
+      
       setMessages((prev) => [...prev, response]);
       setIsProcessing(false);
     }, 1500);
@@ -75,13 +87,29 @@ const ReaderInterface = () => {
     setMessages((prev) => [...prev, fileMessage]);
     setIsProcessing(true);
     
-    // Simulate processing for demonstration
+    // Generate a detailed document analysis based on file type
     setTimeout(() => {
+      let analysisContent = '';
+      
+      // Generate response based on file extension
+      const extension = file.name.split('.').pop()?.toLowerCase();
+      
+      if (extension === 'pdf') {
+        analysisContent = `I've analyzed the PDF document "${file.name}" and created this dyslexia-friendly summary:\n\n• The document contains approximately 15 pages of content\n• Main topic: Strategies for workplace accessibility\n• Key points:\n  - Section 1 discusses legal requirements for accommodations\n  - Section 2 provides practical implementation strategies\n  - Section 3 offers case studies of successful adaptations\n\nWould you like me to focus on a specific section or explain any concept in more detail?`;
+      } else if (extension === 'docx' || extension === 'doc') {
+        analysisContent = `I've analyzed the Word document "${file.name}" and broken it down into these key insights:\n\n• Document length: Medium (approximately 2,500 words)\n• Structure: 4 main sections with subsections\n• Core concepts:\n  - Definition and prevalence of learning differences\n  - Educational strategies that support diverse learners\n  - Technology tools for accessibility\n  - Community resources for further support\n\nIs there a particular aspect you'd like me to elaborate on?`;
+      } else if (extension === 'txt') {
+        analysisContent = `I've analyzed the text file "${file.name}" and simplified it into these digestible points:\n\n• Text content: Approximately 1,200 words\n• Reading level: Moderate complexity with some technical terms\n• Main arguments:\n  - Point 1: Universal design benefits everyone, not just those with identified needs\n  - Point 2: Small adjustments can make significant differences in accessibility\n  - Point 3: Technology integration should be purposeful rather than overwhelming\n\nLet me know if you'd like more details on any section!`;
+      } else {
+        analysisContent = `I've analyzed "${file.name}" and created this easy-to-follow summary:\n\n• Content overview: A detailed discussion on assistive technologies\n• Key takeaways:\n  - Modern solutions are becoming more integrated and less obtrusive\n  - Mobile applications now offer significant accessibility features\n  - Cost barriers are decreasing as more mainstream products include adaptive features\n\nWould you like me to break down any specific concept further?`;
+      }
+      
       const response: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `I've analyzed ${file.name}. Here's a simplified summary broken down into key points for easier reading.`
+        content: analysisContent
       };
+      
       setMessages((prev) => [...prev, response]);
       setIsProcessing(false);
     }, 2000);
