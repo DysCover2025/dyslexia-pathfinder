@@ -14,7 +14,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab }) => {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center">
             <h1 className="text-2xl font-heading font-bold text-primary">
-              DyslexiaPathfinder
+              DysCover
             </h1>
           </div>
           <Navigation activeTab={activeTab} />
@@ -27,7 +27,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab }) => {
       </main>
       <footer className="w-full py-4 px-6 glass-panel mt-auto">
         <div className="max-w-7xl mx-auto text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} DyslexiaPathfinder. All rights reserved.
+          © {new Date().getFullYear()} DysCover. All rights reserved.
         </div>
       </footer>
     </div>
